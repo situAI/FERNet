@@ -1,0 +1,73 @@
+dataloader:
+  batch_size: 64
+  collate_fn: base_collate_fn
+  num_workers: 8
+  pin_memory: true
+model:
+  args:
+    affine_dim: 1024
+    dropout: 0.3
+    feedforward_dim: 1024
+    head_dims:
+    - 512
+    - 256
+    head_dropout: 0.1
+    input_dim: 1792
+    nheads: 4
+    nlayers: 4
+    out_dim: 1
+    seq_len: 160
+    task: eri
+    use_pe: true
+  name: BERT
+seed: 3672
+solver:
+  args:
+    epoch: 16
+  logger:
+    log_root: /data1/comp/
+    suffix: eri_all_mse_0.15_160_mae_train_val
+  loss:
+    args:
+      eps: 1.0e-08
+    name: ERILoss
+  lr_scheduler:
+    args:
+      gamma: 0.1
+      step_size: 20
+    name: StepLR
+  metric:
+    name: ERIMetric
+  name: BaseSolver
+  optimizer:
+    args:
+      lr: 5.0e-05
+      weight_decay: 3.0e-05
+    name: Adam
+task: eri
+train_data:
+  args:
+    feat_dict:
+      fau: 512
+      ires100_7_expr: 512
+      mae_cms1m: 768
+    feat_root: /data1/ERI/feat/all_faces/
+    label_root: /data1/ERI/sthv2/sthv2_train_val_list_rawframes.txt
+    mask_aug: true
+    mask_ratio: 0.15
+    pad_mode: repeat_last
+    seq_len: 160
+    task: eri
+  name: ERIData
+val_data:
+  args:
+    feat_dict:
+      fau: 512
+      ires100_7_expr: 512
+      mae_cms1m: 768
+    feat_root: /data1/ERI/feat/all_faces/
+    label_root: /data1/ERI/sthv2/sthv2_val_list_rawframes.txt
+    pad_mode: repeat_last
+    seq_len: 160
+    task: eri
+  name: ERIData

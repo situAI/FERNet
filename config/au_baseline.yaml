@@ -1,0 +1,84 @@
+seed: 3407
+task: 'au'
+
+
+train_data:
+  name: 'SequenceData'
+  args:
+    feat_root: '/data1/ABAW/ABAW5/Aff-Wild2/feat/'
+    label_root: '/data1/ABAW/ABAW5/Aff-Wild2/annotations/AU_Detection_Challenge/Train_Set'
+    seq_len: 128
+    task: 'au'
+    pad_mode: 'repeat_last'
+    feat_dict:
+      fau: 512
+      ires100_7_expr: 512
+      ires100_face: 512
+      ms_va: 512
+
+val_data:
+  name: 'SequenceData'
+  args:
+    feat_root: '/data1/ABAW/ABAW5/Aff-Wild2/feat/'
+    label_root: '/data1/ABAW/ABAW5/Aff-Wild2/annotations/AU_Detection_Challenge/Validation_Set'
+    seq_len: 128
+    task: 'au'
+    pad_mode: 'repeat_last'
+    feat_dict:
+      fau: 512
+      ires100_7_expr: 512
+      ires100_face: 512
+      ms_va: 512
+
+dataloader:
+  batch_size: 32
+  num_workers: 32
+  pin_memory: true
+  collate_fn: 'base_collate_fn'
+
+model:
+  name: 'BERT'
+  args:
+    input_dim: 2048
+    feedforward_dim: 1024
+    affine_dim: 1024
+    nheads: 4
+    nlayers: 4
+    dropout: 0.3
+    use_pe: True
+    seq_len: 128
+    head_dropout: 0.1
+    head_dims:
+      - 512
+      - 256
+    out_dim: 12
+    task: 'au'
+
+solver:
+  name: 'BaseSolver'
+  args:
+    epoch: 40
+
+  optimizer:
+    name: 'Adam'
+    args:
+      lr: !!float 1e-4
+      weight_decay: !!float 1e-5
+
+  lr_scheduler:
+    name: 'StepLR'
+    args:
+      step_size: 20
+      gamma: 0.1
+
+  loss:
+    name: 'AULoss'
+    args:
+      pos_weight: [4.62925, 7.08213, 4.20781, 2.58702, 1.62773, 1.85054, 2.56480, 21.71528, 26.05755, 22.16450, 1, 6.12062]
+
+  logger:
+    log_root: '/data1/lxl/code/abaw5/log/'
+    suffix: 'au_trial'
+
+  metric:
+    name: 'AUMetric'
